@@ -21,7 +21,7 @@ const axiosGitHubGraphQL = axios.create({
 const TITLE = 'React GraphQL GitHub Client';
 
 // GraphQL Queries
-const GET_ISSUES_OF_REPOSITORY = `
+const getIssuesOfRepositoryQuery = (organization, repository) => `
   {
     organization(login: "the-road-to-learn-react") {
       name
@@ -44,23 +44,27 @@ const GET_ISSUES_OF_REPOSITORY = `
 `;
 
 function App() {
-  const [path, setPath] = useState('the-road-to-learn-react/the-road-to-learn-react');
+  const [path, setPath] = useState('');
+  const [url, setUrl] = useState('the-road-to-learn-react/the-road-to-learn-react');
   const [organization, setOrganization] = useState(null);
   const [errors, setErrors] = useState(null);
 
   useEffect(() => {
     console.log('Using effect to fecth data.');
     const fetchData = async () => {
+      const [organization, repository] = url.split('/');
+
       axiosGitHubGraphQL
-      .post('', { query: GET_ISSUES_OF_REPOSITORY })
-      .then(result => {
+      .post('', { 
+        query: getIssuesOfRepositoryQuery(organization, repository)
+      }).then(result => {
         setOrganization(result.data.data.organization);
         setErrors(result.data.data.errors);
       });
     };
 
     fetchData();
-  }, []);
+  }, [url]);
 
 
   return (
@@ -69,7 +73,7 @@ function App() {
 
       <form 
         onSubmit={event => {
-          // Do something
+          setUrl(path)
           event.preventDefault();
         }}
       >
@@ -79,7 +83,7 @@ function App() {
         <input
           id="url"
           type="text"
-          value={path}
+          value={url}
           onChange={event => setPath(event.target.value)}
           style={{ width: '300px' }}
         />
