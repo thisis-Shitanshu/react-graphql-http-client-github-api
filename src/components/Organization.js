@@ -2,7 +2,11 @@ import React from 'react';
 
 import Repository from './Repository';
 
-function Organization({ organization, errors }) {
+function Organization({ 
+    organization, 
+    errors,
+    onFetchMoreIssues
+}) {
     
     if (errors) {
         return (
@@ -19,7 +23,10 @@ function Organization({ organization, errors }) {
                 <strong>Issues from Organization: </strong>
                 <a href={organization.url}>{organization.name}</a>
             </p>
-            <Repository repository={organization.repository}/>
+            <Repository 
+                repository={organization.repository}
+                onFetchMoreIssues={onFetchMoreIssues}
+            />
         </div>
     );
 }
