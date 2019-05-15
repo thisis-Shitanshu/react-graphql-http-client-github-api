@@ -14,26 +14,26 @@ const axiosGitHubGraphQL = axios.create({
 });
 
 // GraphQL Queries
-const getIssuesOfRepositoryQuery = (organization, repository) => `
-  {
-    organization(login: "${organization}") {
-      name
-      url
-      repository(name: "${repository}") {
-        name
-        url
-        issues(last: 5) {
-          edges {
-            node {
-              id
-              title
-              url
+const GET_ISSUES_OF_REPOSITORY = `
+    query ($organization: String!, $repository: String!) {
+        organization(login: $organization ) {
+            name
+            url
+            repository(name: $repository ) {
+                name
+                url
+                issues(last: 5) {
+                    edges {
+                        node {
+                            id
+                            title
+                            url
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
-  }
 `;
 
 
@@ -47,9 +47,11 @@ const useRepositoryIssuesApi = (initialUrl) => {
         const fetchData = async () => {
           const [organization, repository] = url.split('/');
     
+          // HTTPS request to the GraphQL API takes in query and variables.
           axiosGitHubGraphQL
           .post('', { 
-            query: getIssuesOfRepositoryQuery(organization, repository)
+            query: GET_ISSUES_OF_REPOSITORY,
+            variables: {organization, repository}
           }).then(result => {
             setOrganization(result.data.data.organization);
             setErrors(result.data.data.errors);
