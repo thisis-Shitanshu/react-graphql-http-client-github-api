@@ -1,70 +1,18 @@
 import React, {
-  useState, 
-  useEffect
+  useState
 } from 'react';
 // Libraries
-import axios from 'axios';
 
 // Custome files
 import './App.css';
 import Organization from './components/Organization';
-
-const axiosGitHubGraphQL = axios.create({
-  baseURL: 'https://api.github.com/graphql',
-  headers: {
-    Authorization: `bearer ${
-    process.env.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN
-    }`,
-  }
-});
+import useRepositoryIssuesApi from './hooks/useRepositoryIssuesApi';
 
 const TITLE = 'React GraphQL GitHub Client';
 
-// GraphQL Queries
-const getIssuesOfRepositoryQuery = (organization, repository) => `
-  {
-    organization(login: "the-road-to-learn-react") {
-      name
-      url
-      repository(name: "the-road-to-learn-react") {
-        name
-        url
-        issues(last: 5) {
-          edges {
-            node {
-              id
-              title
-              url
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 function App() {
-  const [path, setPath] = useState('');
-  const [url, setUrl] = useState('the-road-to-learn-react/the-road-to-learn-react');
-  const [organization, setOrganization] = useState(null);
-  const [errors, setErrors] = useState(null);
-
-  useEffect(() => {
-    console.log('Using effect to fecth data.');
-    const fetchData = async () => {
-      const [organization, repository] = url.split('/');
-
-      axiosGitHubGraphQL
-      .post('', { 
-        query: getIssuesOfRepositoryQuery(organization, repository)
-      }).then(result => {
-        setOrganization(result.data.data.organization);
-        setErrors(result.data.data.errors);
-      });
-    };
-
-    fetchData();
-  }, [url]);
+  const [path, setPath] = useState('the-road-to-learn-react/the-road-to-learn-react');
+  const {organization, errors, doFetch} = useRepositoryIssuesApi('the-road-to-learn-react/the-road-to-learn-react');
 
 
   return (
@@ -73,7 +21,7 @@ function App() {
 
       <form 
         onSubmit={event => {
-          setUrl(path)
+          doFetch(path)
           event.preventDefault();
         }}
       >
@@ -83,7 +31,7 @@ function App() {
         <input
           id="url"
           type="text"
-          value={url}
+          value={path}
           onChange={event => setPath(event.target.value)}
           style={{ width: '300px' }}
         />
