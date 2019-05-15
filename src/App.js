@@ -11,18 +11,38 @@ import './App.css';
 const axiosGitHubGraphQL = axios.create({
   baseURL: 'https://api.github.com/graphql',
   headers: {
-    Authorization: `bearer ${process.env.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN}`
+    Authorization: `bearer ${
+    process.env.REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN
+    }`,
   }
 });
 
 const TITLE = 'React GraphQL GitHub Client';
 
+// GraphQL Queries
+const GET_ORGANIZATION = `
+  {
+    organization(login: "the-road-to-learn-react") {
+      name
+      url
+    }
+  }
+`;
+
 function App() {
   const [path, setPath] = useState('the-road-to-learn-react/the-road-to-learn-react');
 
-  const doFetch = () => {
+  useEffect(() => {
+    console.log('Using effect to fecth data.');
+    const fetchData = async () => {
+      axiosGitHubGraphQL
+      .post('', { query: GET_ORGANIZATION })
+      .then(result => console.log(result));
+    };
 
-  };
+    fetchData();
+  }, []);
+
 
   return (
     <div className="App">
@@ -30,7 +50,7 @@ function App() {
 
       <form 
         onSubmit={event => {
-          doFetch();
+          // Do something
           event.preventDefault();
         }}
       >
