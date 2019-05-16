@@ -26,7 +26,11 @@ function Repository({ repository, onFetchMoreIssues }) {
 
             <hr />
 
-            <button onClick={onFetchMoreIssues}>More</button>
+            {repository.issues.pageInfo.hasNextPage ? (
+                <button onClick={onFetchMoreIssues}>More</button>
+            ) : (
+                <button disabled>E.O.L.</button>
+            )}
         </div>
     );
 }

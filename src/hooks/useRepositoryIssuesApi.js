@@ -56,7 +56,7 @@ const GET_ISSUES_OF_REPOSITORY = `
 
 const useRepositoryIssuesApi = (initialUrl) => {
     const [url, setUrl] = useState(initialUrl);
-    const [organization, setOrganization] = useState(null);
+    const [organizationData, setOrganizationData] = useState(null);
     const [errors, setErrors] = useState(null);
     const [cursor, setCursor] = useState();
 
@@ -71,8 +71,29 @@ const useRepositoryIssuesApi = (initialUrl) => {
             query: GET_ISSUES_OF_REPOSITORY,
             variables: {organization, repository, cursor}
           }).then(result => {
-            setOrganization(result.data.data.organization);
-            setErrors(result.data.data.errors);
+
+            const { data } = result.data;
+
+            if (!cursor) {
+                setOrganizationData(data.organization);
+                setErrors(data.errors);
+            } else {
+
+                const { edges: oldIssues  } = organizationData.repository.issues;
+                const { edges: newIssues } = data.organization.repository.issues;
+                const updatedIssues = [...oldIssues, ...newIssues];
+
+                setOrganizationData({
+                    ...data.organization,
+                    repository: {
+                        ...data.organization.repository,
+                        issues: {
+                            ...data.organization.repository.issues,
+                            edges: updatedIssues,
+                        }
+                    }
+                })
+            }
           });
         };
     
@@ -84,11 +105,11 @@ const useRepositoryIssuesApi = (initialUrl) => {
     }
 
     const onFetchMoreIssues = () => {
-        const { endCursor } = organization.repository.issues.pageInfo;
+        const { endCursor } = organizationData.repository.issues.pageInfo;
         setCursor(endCursor);
     }
 
-    return { organization, errors, doFetch, onFetchMoreIssues }
+    return { organization: organizationData, errors, doFetch, onFetchMoreIssues }
 }
 
 export default useRepositoryIssuesApi;
