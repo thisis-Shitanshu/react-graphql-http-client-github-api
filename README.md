@@ -7,6 +7,17 @@
     - Pagination
     - GitHub API
 
+## After cloning:
+```
+yarn install
+```
+
+- Create .env file and add your REACT_APP_GITHUB_PERSONAL_ACCESS_TOKEN
+
+```
+yarn start
+```
+
 ## Dealing with errors:
 - After setting up environment variable in react please remember to restart server.
 
