@@ -8,7 +8,7 @@ import './App.css';
 import Organization from './components/Organization';
 import useRepositoryIssuesApi from './hooks/useRepositoryIssuesApi';
 
-const TITLE = 'React GraphQL GitHub Client';
+const TITLE = 'React GraphQL GitHub Client: using HTTP';
 
 function App() {
   const [path, setPath] = useState('the-road-to-learn-react/the-road-to-learn-react');
