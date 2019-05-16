@@ -12,8 +12,14 @@ const TITLE = 'React GraphQL GitHub Client';
 
 function App() {
   const [path, setPath] = useState('the-road-to-learn-react/the-road-to-learn-react');
-  const {organization, errors, doFetch, onFetchMoreIssues} = useRepositoryIssuesApi('the-road-to-learn-react/the-road-to-learn-react');
-  
+  const {
+    organization, 
+    errors, 
+    doFetch, 
+    onFetchMoreIssues,
+    onStartRepository
+  } = useRepositoryIssuesApi('the-road-to-learn-react/the-road-to-learn-react');
+
 
   return (
     <div className="App">
@@ -46,6 +52,7 @@ function App() {
             organization={organization} 
             errors={errors}
             onFetchMoreIssues={onFetchMoreIssues}
+            onStartRepository={onStartRepository}
           />
         ) : (
           <p>Loading ...</p>

@@ -5,7 +5,8 @@ import Repository from './Repository';
 function Organization({ 
     organization, 
     errors,
-    onFetchMoreIssues
+    onFetchMoreIssues,
+    onStartRepository
 }) {
     
     if (errors) {
@@ -26,6 +27,7 @@ function Organization({
             <Repository 
                 repository={organization.repository}
                 onFetchMoreIssues={onFetchMoreIssues}
+                onStartRepository={onStartRepository}
             />
         </div>
     );

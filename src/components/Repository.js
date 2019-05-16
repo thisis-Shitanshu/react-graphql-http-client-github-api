@@ -1,12 +1,23 @@
 import React from 'react';
 
-function Repository({ repository, onFetchMoreIssues }) {
+function Repository({ repository, onFetchMoreIssues, onStartRepository }) {
     return (
         <div>
             <p>
                 <strong>In Repository: </strong>
                 <a href={repository.url}>{repository.name}</a>
             </p>
+
+            <button
+                type="button"
+                onClick={() => 
+                    onStartRepository(repository.id, repository.viewerHasStarred)
+                }
+            >
+                {repository.stargazers.totalCount}
+                {' '}
+                {repository.viewerHasStarred ? 'Unstar' : 'Star'}
+            </button>
 
             <ul>
                 {repository.issues.edges.map(issue => (

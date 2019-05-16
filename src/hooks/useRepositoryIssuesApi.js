@@ -24,8 +24,13 @@ const GET_ISSUES_OF_REPOSITORY = `
             name
             url
             repository(name: $repository) {
+                id
                 name
                 url
+                stargazers {
+                    totalCount
+                }
+                viewerHasStarred
                 issues(first: 5, after: $cursor, states: [OPEN]) {
                     edges {
                         node {
@@ -53,6 +58,25 @@ const GET_ISSUES_OF_REPOSITORY = `
     }
 `;
 
+const ADD_STAR = `
+    mutation ($repositoryId: ID!) {
+        addStar(input:{starrableId:$repositoryId}) {
+            starrable {
+                viewerHasStarred
+            }
+        }
+    }
+`;
+
+const REMOVE_STAR = `
+    mutation ($repositoryId: ID!) {
+        removeStar(input:{starrableId:$repositoryId}) {
+            starrable {
+                viewerHasStarred
+            }
+        }
+    }
+`;
 
 const useRepositoryIssuesApi = (initialUrl) => {
     const [url, setUrl] = useState(initialUrl);
@@ -61,7 +85,7 @@ const useRepositoryIssuesApi = (initialUrl) => {
     const [cursor, setCursor] = useState();
 
     useEffect(() => {
-        console.log('Using effect to fecth data.');
+        // console.log('Using effect to fecth data.');
         const fetchData = async () => {
           const [organization, repository] = url.split('/');
     
@@ -92,13 +116,75 @@ const useRepositoryIssuesApi = (initialUrl) => {
                             edges: updatedIssues,
                         }
                     }
-                })
+                });
             }
           });
         };
     
         fetchData();
     }, [url, cursor]);
+
+
+    const starToRepository = async (repositoryId, viewerHasStarred) =>  {
+
+        // console.log('Star  in a repository');
+        if (viewerHasStarred) {
+            // console.log('Has a star: REMOVE');
+
+            axiosGitHubGraphQL.post('', {
+                query: REMOVE_STAR,
+                variables: { repositoryId }
+            })
+            .then(result => {
+    
+                const {
+                    viewerHasStarred
+                } = result.data.data.removeStar.starrable;
+                const { totalCount } = organizationData.repository.stargazers;
+    
+                setOrganizationData({
+                    ...organizationData,
+                    repository: {
+                        ...organizationData.repository,
+                        viewerHasStarred,
+                        stargazers: {
+                            totalCount: totalCount - 1
+                        }
+                    }
+                });
+    
+                // console.log('ADD STAR Organization Data');
+            });
+            
+        } else {
+            // console.log('Donot have a star: ADD');
+        
+            axiosGitHubGraphQL.post('', {
+                query: ADD_STAR,
+                variables: { repositoryId }
+            })
+            .then(result => {
+    
+                const {
+                    viewerHasStarred
+                } = result.data.data.addStar.starrable;
+                const { totalCount } = organizationData.repository.stargazers;
+    
+                setOrganizationData({
+                    ...organizationData,
+                    repository: {
+                        ...organizationData.repository,
+                        viewerHasStarred,
+                        stargazers: {
+                            totalCount: totalCount + 1
+                        }
+                    }
+                });
+    
+                // console.log('ADD STAR Organization Data');
+            });
+        }
+    };
 
     const doFetch = path => {
         setUrl(path);
@@ -109,7 +195,17 @@ const useRepositoryIssuesApi = (initialUrl) => {
         setCursor(endCursor);
     }
 
-    return { organization: organizationData, errors, doFetch, onFetchMoreIssues }
+    const onStartRepository = (repositoryId, viewerHasStarred) => {
+        starToRepository(repositoryId,viewerHasStarred);
+    }
+
+    return { 
+        organization: organizationData, 
+        errors, 
+        doFetch, 
+        onFetchMoreIssues,
+        onStartRepository
+    }
 }
 
 export default useRepositoryIssuesApi;
